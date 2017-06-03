@@ -1,13 +1,15 @@
-function [INT, IDX, t_IDX] = ClusterStates_DetermineStates(broadbandSlowWave,thratio,t_FFT,EMG,histsandthreshs,MinWinParams,reclength,figloc)
+function [INT, IDX, t_IDX] = ClusterStates_DetermineStates(SleepScoreMetrics,MinWinParams,histsandthreshs)
+% can input histsandthreshs from externally if needed... ie via manual
+% selection in stateeditor
 
 %% Basic parameters
 % Min Win Parameters (s)
 if exist('MinWinParams','var')
-%     v2struct(MinWinParams)
-	fn = fieldnames(MinWinParams);
-    for a = 1:length(fn);
-        eval([fn{a} '=MinWinParams.' fn{a} ';']);
-    end
+     v2struct(MinWinParams)
+% 	fn = fieldnames(MinWinParams);
+%     for a = 1:length(fn);
+%         eval([fn{a} '=MinWinParams.' fn{a} ';']);
+%     end
 else%defaults as follows:
     minSWS = 6;
     minWnexttoREM = 6;
@@ -17,6 +19,14 @@ else%defaults as follows:
     minWAKE = 6;
 end
 
+% handling variables for determining thresholds/cutoffs
+if exist('histsandthreshs','var')
+    hat2 = histsandthreshs;%bc will overwrite below
+    v2struct(SleepScoreMetrics)
+    histsandthreshs = hat2;
+else
+    v2struct(SleepScoreMetrics)
+end
 v2struct(histsandthreshs)%Expand and get values out of these fields
 
 %% Re-Do this code (should be same as in ClusterStates_GetParams.m) to see if theta is bimodal
@@ -148,7 +158,7 @@ INT = IDXtoINT_ss(IDX,3);
 
 
 %% Pad time to match recording time
-offset = t_FFT(1)-1;
+offset = SleepScoreMetrics.t_clus(1)-1; %t_FFT(1)-1;
 
 INT = cellfun(@(x) x+offset,INT,'UniformOutput',false);
 
