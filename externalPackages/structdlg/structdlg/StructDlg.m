@@ -182,10 +182,10 @@ if (isstruct(struct_def)) % Init
       dflt = rm_ignore_dflt(dflt,struct_def); % AF 6/20/02: Comment this line out if cuases problems.
       present_val = rm_ignore_dflt(present_val,struct_def);
    end
-   [struct_def units limits protected] = split_def(struct_def);
+   [struct_def units limits protected] = split_def(struct_def); %Split the input structure contents into values, units, limits, etc
    fnames = fieldnames(struct_def);
-   fnames_lbl = build_labels(fieldnames(struct_def),units);
-   max_width = (size(char(fnames_lbl),2) + 4) * font_size/7;
+   fnames_lbl = build_labels(fieldnames(struct_def),units); %Labels to display for each of the fields from units or fieldname
+   max_width = (size(char(fnames_lbl),2) + 4) * font_size/7; %Spacing stuff
    tot_height = max(5,length(fnames_lbl)* (1+vert_spacing) + vert_spacing+2.5);
    recurssion_offset = 7*(rec_level-1);
    if ((exist('fig_pos','var') ~= 1) | isempty(fig_pos))
@@ -200,7 +200,7 @@ if (isstruct(struct_def)) % Init
       end
       specified_pos = 1;
    end
-   h_fig = figure( ...
+   h_fig = figure( ...          %Make h_fig - the main user interface (ui) figure
       'NumberTitle',         'off',...
       'Name',                title, ...
       'Units',               'char', ...
@@ -210,9 +210,9 @@ if (isstruct(struct_def)) % Init
       'Visible',             visible,...
       'DeleteFcn',           'StructDlg;', ...
       'CloseRequestFcn',     'StructDlg(''cancel'');',...
-      'WindowStyle',         'modal'); % Change to noraml when debugging
+      'WindowStyle',         'normal'); % Change to normal when debugging, modal for regular use
    
-
+    %Make the labels for each input field
    lbl = zeros(1,length(fnames_lbl));
    for i = 1:length(fnames_lbl)
       vert_pos = fig_pos(4)-i*(1+vert_spacing)-0.5;
@@ -226,7 +226,7 @@ if (isstruct(struct_def)) % Init
          'ForegroundColor',  col, ...
          'horizon',          'right');
    end
-   ud.error = [];
+   ud.error = []; %Initiate the ud structure
    ud.specified_pos = specified_pos;
    ud.col   = col;
    ud.width = 20;
@@ -234,8 +234,8 @@ if (isstruct(struct_def)) % Init
    ud.dflt      = dflt;
    ud.limits    = limits;
    ud.protected = protected;
-   ud = set_fields_ui(struct_def,h_fig,ud,[]);
-   if (~isempty(present_val))
+   ud = set_fields_ui(struct_def,h_fig,ud,[]); %If this is the first time through the loop, set the fields...
+   if (~isempty(present_val)) 
       ud.present_val = present_val;
       ud = set_fields_ui(struct_def,h_fig,ud,[]);
       ud = rmfield(ud,'present_val');
@@ -244,7 +244,7 @@ if (isstruct(struct_def)) % Init
 
    OK_vert_pos = min(0.5,fig_pos(4)-tot_height);
    % OK_vert_pos = fig_pos(4)-tot_height;
-   if (OK_vert_pos < 0)
+   if (OK_vert_pos < 0) %Add a slider if the inputs are bigger than the screen
       slider_step = fig_pos(4) / (abs(OK_vert_pos)+fig_pos(4));
       h_slider = uicontrol(h_fig, ...
          'style',         'slider', ...
@@ -256,7 +256,7 @@ if (isstruct(struct_def)) % Init
          'value',         abs(OK_vert_pos), ...
          'Userdata',      abs(OK_vert_pos));
    end
-   h_OK = uicontrol(h_fig, ...
+   h_OK = uicontrol(h_fig, ...    %The buttons
       'style',         'pushbutton', ...
       'callback',      'StructDlg(''ok'');', ...
       'Units',         'char', ...
@@ -505,7 +505,7 @@ set(h_fig,'UserData',ud);
 
 fig_pos = get(h_fig, 'Position');
 fig_width = fig_pos(3);
-for i = 1:length(fnames)
+for i = 1:length(fnames)  %This is where you loop each field to set/get it's data
    h_lbl = findobj(h_fig,'Tag',['LBL_' fnames{i}]);
    lbl_pos = get(h_lbl,'Position');
    h = findobj(h_fig,'Tag',fnames{i});
