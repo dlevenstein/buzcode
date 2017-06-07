@@ -142,6 +142,9 @@ function [P,units] = StructDlg(struct_def,title,dflt,fig_pos,visible,present_val
 
 % AF 1/10/2005: Fixed a bug that crashed StructDlg when substructure were used.
 % AF 1/10/2005: Allow for auto-updates even when the referenced field is not an edit UI
+% DL TO DO: inputs in dflt that are not in struct_def should be passed
+% through.?
+%%
 
 global rec_level
 
