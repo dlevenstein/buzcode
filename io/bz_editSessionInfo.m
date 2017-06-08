@@ -139,6 +139,10 @@ while sessionInfo_new.fromfile ...
 
 end
 
+
+%% Convert regiongroups to labels for each channel
+
+
 %% Save the sessionInfo.mat file in its right place, eh?
 
 
