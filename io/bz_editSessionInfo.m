@@ -42,7 +42,7 @@ while sessionInfo_new.fromfile ...
         || isfield(sessionInfo_template,'Behavior')
       %%|| isfield(sessionInfo_template,'NEWMODULENAME')
     
-%%THIS IS WHERE YOU CAN ADD NEW MODULES%%
+%%THIS IS WHERE/HOW YOU CAN ADD NEW MODULES%%
     %%THIS IS AN EXAMPLE NEW MODULE. 
     %%Make sure to add a condition to the while loop above
     %if sessionInfo_new.NEWMODULENAME
@@ -109,6 +109,8 @@ while sessionInfo_new.fromfile ...
         %Here is where xml parms will be put into sessionInfo structure
         
         
+        sessionInfo_new.ExtracellEphys = true; %Add the ExtracellularEphys module
+        sessionInfo_new.fromfile = false; %Turn off the load from file switch
     %If loading from old sessionInfo.mat file    
     elseif strcmp(sessionInfo_new.xmlfilename(end-3:end),'.mat')
         display('loading from old sessionInfo.mat...')
