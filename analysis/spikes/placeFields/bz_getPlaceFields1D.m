@@ -38,6 +38,10 @@ maxFieldWidth = p.Results.maxFieldWidth;
 meanRates = squeeze(mean(ratemap,2));
 
 stdRates = squeeze(std(ratemap,[],2));
+<<<<<<< HEAD
+=======
+warning off  % findpeaks.m throws warnings if peak isn't found...
+>>>>>>> master
 
 for i=1:size(meanRates,1)
     fields{i} = [];
@@ -45,7 +49,11 @@ for i=1:size(meanRates,1)
     exclude=[];
     for j=1:length(locs)-1
        if min(meanRates(i,locs(j):locs(j+1))) > ((pks(j)+pks(j+1))./2) * .1
+<<<<<<< HEAD
            % exclude fields without a 70% decrease in rate between peaks
+=======
+           % exclude fields without a 90 % decrease in rate between peaks
+>>>>>>> master
            if pks(j) > pks(j+1)
                exclude = [exclude;j+1];
            elseif pks(j) < pks(j+1)
@@ -55,7 +63,11 @@ for i=1:size(meanRates,1)
     end   
     % remove field peaks with a standard dev higher than the mean
     % (unreliable fields)
+<<<<<<< HEAD
     exclude = [exclude find( meanRates(i,locs) <  stdRates(i,locs))];
+=======
+    exclude = [exclude; find( meanRates(i,locs) <  stdRates(i,locs))'];
+>>>>>>> master
     
     pks(exclude) = [];
     locs(exclude)=[];
@@ -90,7 +102,11 @@ for i=1:size(meanRates,1)
 end
 
 
+<<<<<<< HEAD
 
+=======
+warning on
+>>>>>>> master
 
 
 
