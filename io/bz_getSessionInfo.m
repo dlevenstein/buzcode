@@ -5,6 +5,7 @@ function [sessionInfo] = bz_getSessionInfo(basePath)
 %
 %
 %%
+
 if ~exist('basePath','var')
     basePath = pwd;
 end

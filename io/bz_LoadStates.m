@@ -1,4 +1,6 @@
+
 function [ states ] = bz_LoadStates(statesName,basePath)
+
 %[ states ] = bz_LoadStates(basePath,statesName) function for
 %loading states.mat files. states.mat files are saved as...
 % datasetPath/baseName/baseName.statesName.states.mat
@@ -9,12 +11,14 @@ function [ states ] = bz_LoadStates(statesName,basePath)
 %
 %DLevenstein 2017
 %%
+
 if ~exist('basePath','var')
     basePath=pwd;
 end
 
 
-[datasetPath,baseName] = fileparts(basePath);
+baseName = bz_BasenameFromBasepath(basePath);
+
 
 % if strcmp('statesName','all')
 %     allStatesFiles = dir(fullfile(datasetPath,baseName,[baseName,'.','*','.states.mat']));
@@ -22,8 +26,6 @@ end
 %         [s,v] = listdlg('PromptString','Which states.mats would you like to load?',...
 %                         'ListString',allStatesFiles);
 %         statesfilestoload = allStatesFiles(s);
-
-
 
 
 statesfile = fullfile(basePath,[baseName,'.',statesName,'.states.mat']);
