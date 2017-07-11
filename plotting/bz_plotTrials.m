@@ -6,7 +6,11 @@ f = factor(length(unique(behavior.events.trialConditions)));
 
 for tt = 1:length(unique(behavior.events.trialConditions))
 <<<<<<< HEAD
+<<<<<<< HEAD
     subplot(length(unique(behavior.events.trialConditions))./f(1),f(1),tt)
+=======
+    subplot(f(1),length(unique(behavior.events.trialConditions))./f(1),tt)
+>>>>>>> master
 =======
     subplot(f(1),length(unique(behavior.events.trialConditions))./f(1),tt)
 >>>>>>> master
@@ -18,14 +22,20 @@ for tt = 1:length(unique(behavior.events.trialConditions))
     scatter(behavior.events.trials{ff(t)}.x(1),behavior.events.trials{ff(t)}.y(1),'.g')
     scatter(behavior.events.trials{ff(t)}.x(end),behavior.events.trials{ff(t)}.y(end),'.r')
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     end
 title(tt);
 =======
+=======
+>>>>>>> master
     hold on
     end
 %     axis square
 title(['condition: ' num2str(tt) ', # of trials: ' num2str(length(ff))]);
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
 end
 

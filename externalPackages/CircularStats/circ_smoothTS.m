@@ -33,18 +33,27 @@ parse(p,varargin{:});
 
 ts = p.Results.ts;
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> master
 if size(ts,1) == 1;
     ts = ts';
 end
 
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
 nBins = p.Results.nBins;
 method = p.Results.method;
 exclude = p.Results.exclude;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
+=======
+>>>>>>> master
 if length(exclude) == length(ts)
    ts_smooth = ts;
    return
@@ -54,6 +63,9 @@ if nBins == 1
     return
 end
 
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
 if ~isempty(exclude)
     list = find(ts==exclude);
@@ -62,12 +74,15 @@ end
 
 exclude = find(isnan(ts));
 <<<<<<< HEAD
+<<<<<<< HEAD
 if length(exclude) == length(ts)
    ts_smooth = ts;
    return
 end
 if nBins == 1
 =======
+=======
+>>>>>>> master
 keep = find(~isnan(ts));
 
 f = find(diff(keep)<nBins);
@@ -77,11 +92,15 @@ if ~isempty(ff)
 end
 if length(keep) == 0
     ts(isnan(ts))=0;
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
     ts_smooth = ts;
     return
 end
 
+<<<<<<< HEAD
 <<<<<<< HEAD
 for i = 1:length(ts)
     if i <= nBins
@@ -100,6 +119,8 @@ for i = 1:length(ts)
             case 'mean'
                 ts_smooth(i) = circ_mean(ts(ind(loc))');
 =======
+=======
+>>>>>>> master
 ts_smooth = zeros(length(ts),1);
 
 for i =1:length(ff)  % populate list with single spikes that occur sparsely
@@ -143,6 +164,9 @@ for ii = 1:length(keep)
                 ts_smooth(i) = circ_median(ts(ind(loc)));
             case 'mean'
                 ts_smooth(i) = circ_mean(ts(ind(loc)));
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
             case 'guassian'
 
@@ -150,11 +174,14 @@ for ii = 1:length(keep)
                 
         end
 <<<<<<< HEAD
+<<<<<<< HEAD
     end
     
 end
 
 =======
+=======
+>>>>>>> master
 %     else
 %         ts_smooth(ind) = ts(i);    
 %     end
@@ -167,6 +194,9 @@ ts_smooth(isnan(ts_smooth)) = 0;
 if length(ts_smooth) ~= length(ts)
    error('output TS is the wrong length!') 
 end
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
 
 

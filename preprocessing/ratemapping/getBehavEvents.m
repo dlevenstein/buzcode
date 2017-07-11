@@ -58,13 +58,19 @@ if size(pos,2)>6
 %        pos(:,y_coord) = pos(:,y_coord)./1000; 
 %     end
 <<<<<<< HEAD
+<<<<<<< HEAD
     p = pos(:,[8 10]);
     if nanstd(pos(:,8)) > 100
 =======
+=======
+>>>>>>> master
     x_coord = 8;
     y_coord = 10;
     p = pos(:,[x_coord y_coord]);
     if nanstd(pos(:,x_coord)) > 100
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
         p(:,1) = p(:,1)./1000;
         

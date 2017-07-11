@@ -180,10 +180,13 @@ if saveFiles
             warning('could not find cluster name?')
         end
 <<<<<<< HEAD
+<<<<<<< HEAD
         
         if group(b)~=2
             clu(clu == clusterID(b)) = 0;  % re-name unsorted and noise as MUA/Noise cluster for FMATToolbox
 =======
+=======
+>>>>>>> master
         if keepMUA
             if group(b) == 0 || group(b) == 3
                 clu(clu == clusterID(b)) = 0; % noise
@@ -195,6 +198,9 @@ if saveFiles
             if group(b)~=2
                 clu(clu == clusterID(b)) = 0;  % re-name unsorted and noise as MUA/Noise cluster for FMATToolbox
             end
+<<<<<<< HEAD
+>>>>>>> master
+=======
 >>>>>>> master
         end
     end
