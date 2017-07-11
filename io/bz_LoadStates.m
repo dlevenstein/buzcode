@@ -11,7 +11,7 @@ function [ states ] = bz_LoadStates(statesName,basePath)
 %
 %DLevenstein 2017
 %%
-<<<<<<< HEAD
+
 
 if ~exist('basePath','var')
     basePath=pwd;
@@ -20,9 +20,6 @@ end
 
 baseName = bz_BasenameFromBasepath(basePath);
 
-=======
-baseName = bz_BasenameFromBasepath(basePath);
->>>>>>> master
 
 % if strcmp('statesName','all')
 %     allStatesFiles = dir(fullfile(datasetPath,baseName,[baseName,'.','*','.states.mat']));
