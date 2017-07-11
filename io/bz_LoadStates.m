@@ -11,8 +11,6 @@ function [ states ] = bz_LoadStates(statesName,basePath)
 %
 %DLevenstein 2017
 %%
-
-
 if ~exist('basePath','var')
     basePath=pwd;
 end
