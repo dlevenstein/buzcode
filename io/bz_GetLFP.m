@@ -14,9 +14,12 @@ function [lfp] = bz_GetLFP(varargin)
 %                        list of channels to load (use keyword 'all' for all)
 %                        channID is 0-indexing, a la neuroscope
 %  Name-value paired inputs:
-%    basename           -base file name to load
 %    basepath           - folder in which .lfp file will be found (default
 %                           is pwd)
+%                           folder should follow buzcode standard:
+%                           whateverPath/baseName
+%                           and contain file baseName.lfp
+%    basename           -base file name to load
 %    intervals          -list of time intervals [0 10; 20 30] to read from 
 %                           the LFP file (default is [0 inf])
 %
@@ -84,7 +87,7 @@ end
 
 %% let's check that there is an appropriate LFP file
 if isempty(basename)
-   disp('No basename given, so we look for a *lfp/*eeg file...')
+   %disp('No basename given, so we look for a *lfp/*eeg file...')
    d = dir([basepath filesep '*lfp']);
    if length(d) > 1 % we assume one .lfp file or this should break
        error('there is more than one .lfp file in this directory?');
@@ -110,8 +113,9 @@ else
    lfp.Filename = [basename '.lfp'];
 end
 
-%% things we can parse from xml file
-xml = LoadParameters(fullfile(basepath,[basename '.xml']));
+%% things we can parse from sessionInfo or xml file
+%xml = LoadParameters(fullfile(basepath,[basename '.xml']));
+xml = bz_getSessionInfo(basepath);
 nChannels = xml.nChannels;
 try
     samplingRate = xml.lfpSampleRate;
@@ -128,7 +132,7 @@ if strcmp(channels,'all')
 end
 
 %% get the data
-disp('loading file...')
+disp('loading LFP file...')
 nIntervals = size(intervals,1);
 % returns lfp/bz format
 for i = 1:nIntervals
@@ -138,9 +142,10 @@ for i = 1:nIntervals
     % Load data and put into struct
     % we assume 0-indexing like neuroscope, but bz_LoadBinary uses 1-indexing to
     % load....
-    lfp(i).data = bz_LoadBinary([basepath filesep lfp.Filename],'duration',lfp(i).duration,...
+    lfp(i).data = bz_LoadBinary([basepath filesep lfp.Filename],...
+        'duration',double(lfp(i).duration),...
                   'frequency',samplingRate,'nchannels',nChannels,...
-                  'start',lfp(i).interval(1),'channels',channels+1);
+                  'start',double(lfp(i).interval(1)),'channels',channels+1);
     lfp(i).timestamps = [lfp(i).interval(1):(1/samplingRate):...
                         (lfp(i).interval(1)+(length(lfp(i).data)-1)/...
                         samplingRate)]';
@@ -150,5 +155,9 @@ for i = 1:nIntervals
     if lfp(i).interval(2) == inf
         lfp(i).interval(2) = length(lfp(i).timestamps)/lfp(i).samplingRate;
         lfp(i).duration = (lfp(i).interval(i,2)-lfp(i).interval(i,1));
+    end
+    
+    if isfield(xml,'region') && isfield(xml,'channels')
+        lfp(i).region = xml.region(ismember(xml.channels,channels));
     end
 end
