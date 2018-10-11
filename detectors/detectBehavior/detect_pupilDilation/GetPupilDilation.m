@@ -80,9 +80,11 @@ if exist(savefile,'file')
     PREVIOUSDETECT = true;  %not used yet: should be used to load old? or use old params?
 end
 
+
+
 %% Parameters
 
-unstablemeanthresh = 0.7;  %how many modSTDs from the median can the median go
+unstablemeanthresh = 0.75;  %how many modSTDs from the median can the median go
 unstablestdthresh = 0.15;
 unstablewindow = 10; %window of frames around detected unstable frames to denote as unstable
 
@@ -464,12 +466,13 @@ figure
         hist(interpulse)
         xlabel('Frame Duration')
     subplot(6,2,6)
-        hist(puparea,linspace(0,1,20))
-        xlim([0 1])
+        hist(puparea,linspace(0,4,60))
+        xlim([0 5])
         xlabel('Pupil Diameter')
         
         
     subplot(2,2,1)
+    colormap('gray')
     imagesc(meanvid)
     hold on
         plot(pupcoords(:,1),pupcoords(:,2),'.')
