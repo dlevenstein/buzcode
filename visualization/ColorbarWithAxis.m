@@ -2,6 +2,17 @@ function [ ] = ColorbarWithAxis(cbounds,label,varargin)
 %ColorbarWithAxis(cbounds,label) adds a colorbar to a imageplot and labels
 %axis and bounds with > and <.
 %
+%INPUTS
+%   cbounds   range of the colorbar can be '3std' or 'datarange' 
+%   label
+%
+%options
+%   'location'
+%   'labelloc'
+%   'scale'
+%   'inclusive'
+%
+%
 %TO DO
 %   change inputs to 'parms' with inputParser
 %   add 3std functionality
@@ -26,9 +37,9 @@ cb = colorbar(barlocation);
 
 if isstring(cbounds); switch cbounds
         case '3std'
-            display('ColorbarWithAxis does not yet have this functionality, don"t you wish it did?...')
+            eror('ColorbarWithAxis does not yet have this functionality, don"t you wish it did?...')
         case 'datarange'
-            display('ColorbarWithAxis does not yet have this functionality, don"t you wish it did?...')
+            error('ColorbarWithAxis does not yet have this functionality, don"t you wish it did?...')
 end; end
             
 

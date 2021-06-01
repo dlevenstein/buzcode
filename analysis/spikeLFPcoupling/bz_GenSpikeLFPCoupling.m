@@ -126,7 +126,8 @@ end
 %% Subpopulations
 if isequal(subpop,0)
         numpop = 1;
-        popcellind = {1:numcells};
+        popcellind = {1:spikes.numcells};
+        pops = {'All'};
 elseif isequal(subpop,'done')
 else
         emptycells =cellfun(@isempty,subpop);
@@ -164,6 +165,9 @@ end
 spikes.toomany = cellfun(@(X) (sum(X)-spikeLim).*((sum(X)-spikeLim)>0),spikes.inint);
 spikes.numcells = length(spikes.times);
 for cc = 1:spikes.numcells
+    if isempty(spikes.inint{cc})
+       continue 
+    end
     spikes.inint{cc}(randsample(find(spikes.inint{cc}),spikes.toomany(cc)))=false;
 end
 
@@ -217,7 +221,7 @@ for cc = 1:length(LFP.channels)
 
     %Spike-Power Coupling
     [ratepowercorr(:,:,cc),ratepowersig(:,:,cc)] = corr(spikemat.data,abs(spikemat.filtLFP),'type','spearman','rows','complete');
-
+    ratepowercorr(:,:,cc) = abs(ratepowercorr(:,:,cc));
     %% Cell Spike-Phase Coupling
     
     %Find filtered LFP at the closest LFP timepoint to each spike.
@@ -641,7 +645,7 @@ end
     function [phmag,phangle] = spkphase(spkLFP_fn)
         %Spike Times have to be column vector
             if isrow(spkLFP_fn); spkLFP_fn=spkLFP_fn'; end
-            if isempty(spkLFP_fn); phmag=nan;phangle=nan; return; end
+            if isempty(spkLFP_fn); phmag=nan(1,nfreqs);phangle=nan(1,nfreqs); return; end
         %Calculate (power normalized) resultant vector
         rvect = nanmean(abs(spkLFP_fn).*exp(1i.*angle(spkLFP_fn)),1);
         phmag = abs(rvect);

@@ -9,27 +9,16 @@ if ~isstruct(GSASparms)
     GSASparms = convertGSASparms(GSASparms,numcells,numAS);
 end
 
-%Here: if logtbins = 'sample'. Put in a very large vector of possible times
-%to sample from, save that we're sampling.
-sample = false;
-if strcmp(logtbins,'sample')
-    sample = true;
-    logtbins = linspace(-10,7,1000);
-end
-
-GSISI = LogGamma(GSASparms.GSlogrates,GSASparms.GSCVs,GSASparms.GSweights,logtbins');
+%Ground state
+allISIdist = LogGamma(GSASparms.GSlogrates,GSASparms.GSCVs,GSASparms.GSweights,logtbins');
 %%
-ASISI = zeros([size(GSISI),length(GSASparms.ASlogrates)]);
+%Add in each AS mode
+%ASISI = zeros([size(allISIdist),length(GSASparms.ASlogrates)]);
 for aa = 1:length(GSASparms.ASlogrates)
-    ASISI(:,:,aa) = LogGamma(GSASparms.ASlogrates(aa),GSASparms.ASCVs(aa),GSASparms.ASweights(:,aa)',logtbins');
+    allISIdist = allISIdist + LogGamma(GSASparms.ASlogrates(aa),GSASparms.ASCVs(aa),GSASparms.ASweights(:,aa)',logtbins');
 end
 %%
-allISIdist = sum(ASISI,3)+GSISI;
-
-if sample
-    numsamps = 30000;
-    allISIdist = randsample(logtbins,numsamps,true,allISIdist); 
-end
+%allISIdist = sum(ASISI,3)+GSISI;
 
 end
 

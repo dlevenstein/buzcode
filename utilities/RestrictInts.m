@@ -1,4 +1,4 @@
-function [ints,keepints,containingints,inint] = RestrictInts(ints,restrictints)
+function [ints,keepints,containingints,inint] = RestrictInts(ints,restrictints,varargin )
 %[ints,keepints,containingints] = RestrictInts(ints,restrictingints) 
 %restricts intervals to those only appearing in restrictingints. 
 %Can also return indices of restricting ints that contain ints
@@ -8,6 +8,10 @@ function [ints,keepints,containingints,inint] = RestrictInts(ints,restrictints)
 %                   or [Ni x 1] event times.
 %   restrictints    [Nr x 2] interval start and end times
 %
+%   (optional)
+%       'inclusive'     (default: false) include overhanging intervals
+%
+%
 %OUTPUTS
 %   ints            [No x 2] interval start and end times - only of
 %                   intervals from ints that are within the intervals given
@@ -16,6 +20,11 @@ function [ints,keepints,containingints,inint] = RestrictInts(ints,restrictints)
 %
 %Last Updated: 9/21/15
 %DLevenstein
+%% parse args
+p = inputParser;
+addParameter(p,'inclusive',false)
+parse(p,varargin{:})
+inclusive = p.Results.inclusive;
 %%
 if isa(ints,'intervalSet')
     ints = [Start(ints,'s'), End(ints,'s')];
@@ -44,11 +53,21 @@ numres = length(restrictints(:,1));
 for rr = 1:numres
 %    resstart = restrictints(rr,1);
 %    resend = restrictints(rr,2);
-    %Keep only intervals that start and end within a restriction interval
-    keepints(ints(:,1)>=restrictints(rr,1) & ints(:,2)<=restrictints(rr,2)) = true;
-    inint(ints(:,1)>=restrictints(rr,1) & ints(:,2)<=restrictints(rr,2)) = rr;
-    if sum(ints(:,1)>=restrictints(rr,1) & ints(:,2)<=restrictints(rr,2))>=1
-        containingints(rr) = true;
+    switch inclusive
+        case false
+            %Keep only intervals that start and end within a restriction interval
+            keepints(ints(:,1)>=restrictints(rr,1) & ints(:,2)<=restrictints(rr,2)) = true;
+            inint(ints(:,1)>=restrictints(rr,1) & ints(:,2)<=restrictints(rr,2)) = rr;
+            if sum(ints(:,1)>=restrictints(rr,1) & ints(:,2)<=restrictints(rr,2))>=1
+                containingints(rr) = true;
+            end
+        case true
+            %Keep only intervals that start or end within a restriction interval
+            keepints(ints(:,2)>=restrictints(rr,1) & ints(:,1)<=restrictints(rr,2)) = true;
+            inint(ints(:,2)>=restrictints(rr,1) & ints(:,1)<=restrictints(rr,2)) = rr;
+            if sum(ints(:,2)>=restrictints(rr,1) & ints(:,1)<=restrictints(rr,2))>=1
+                containingints(rr) = true;
+            end    
     end
     
 end
