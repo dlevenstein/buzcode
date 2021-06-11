@@ -17,6 +17,7 @@ addParameter(p,'numXbins',10)
 addParameter(p,'Xwin',[0 1])
 addParameter(p,'GammaFitParms',[])
 addParameter(p,'GammaFit',false)
+addParameter(p,'holdAS',true) %hold AS weights and Rates at the given gamma parms (fit only weights andGS Rate)
 addParameter(p,'MutInf',true)
 addParameter(p,'ISIDist',true)
 addParameter(p,'showfig',true)
@@ -45,6 +46,7 @@ DO_ISIDist = p.Results.ISIDist;
 DO_MutInf = p.Results.MutInf;
 Xbinoverlap = p.Results.Xbinoverlap;
 spikecondition = p.Results.spikecondition;
+holdAS = p.Results.holdAS;
 %%
 baseName = bz_BasenameFromBasepath(basePath);
 
@@ -134,90 +136,88 @@ end
 if DO_GammaFit
     %% Set up everything for fitting
 
-
     %Initial Conditions
-    %init_struct.GSlogrates = -log10(meanISI)-0.5;
     init_struct.GSlogrates = GFParms.GSlogrates.*ones(1,numXbins);
     init_struct.GSCVs = GFParms.GSCVs.*ones(1,numXbins);
     init_struct.GSweights = GFParms.GSweights.*ones(1,numXbins);
-
-    % if ASguess
-    %     init_struct.ASlogrates = educatedGuess.logrates(1:numAS);
-    %     init_struct.ASCVs = educatedGuess.CVs(1:numAS);
-    % else
-        init_struct.ASlogrates = GFParms.ASlogrates;
-        init_struct.ASCVs = GFParms.ASCVs;
-    % end
+    init_struct.ASlogrates = GFParms.ASlogrates;
+    init_struct.ASCVs = GFParms.ASCVs;
     init_struct.ASweights  = repmat(GFParms.ASweights,numXbins,1);
-    init = convertGSASparms(init_struct);
-
-
+    %init = convertGSASparms(init_struct);
 
     %%
-
     taubins = ConditionalISI.Dist.Ybins./log10(exp(1));
     logISIhist = ConditionalISI.Dist.pYX'.* mode(diff(ConditionalISI.Dist.Xbins))./mode(diff(taubins)); %convert to dtau
-    numXbins = numXbins;
     numAS = length(GFParms.ASweights);
 
     %%
-
-
-    %Upper/Lower Bounds
-    clear lb ub
-    lb.GSlogrates = -2.*ones(1,numXbins);
-    lb.GSCVs =      zeros(1,numXbins);
-    lb.GSweights =  zeros(1,numXbins);
-    lb.ASlogrates = 0.3.*ones(1,numAS);
-    lb.ASCVs =      zeros(1,numAS);
-    lb.ASweights  = zeros(numXbins,numAS);
-    lb = convertGSASparms(lb);
-
-    ub.GSlogrates = 2.*ones(1,numXbins);
-    ub.GSCVs =      4.*ones(1,numXbins);
-    ub.GSweights =  ones(1,numXbins);
-    ub.ASlogrates = 3.*ones(1,numAS);
-    ub.ASCVs =      2.*ones(1,numAS);
-    ub.ASweights  = ones(numXbins,numAS);
-    ub = convertGSASparms(ub);
-
-    %Make the constraint matrix for all weights to add to 1
-    Aeq = zeros(numXbins,length(ub));
-    Aeq_ASonly = zeros(numXbins,length(ub));
-    Beq = ones(numXbins,1);
-    for cc = 1:numXbins
-        thiscell.GSlogrates = zeros(1,numXbins);
-        thiscell.GSCVs =      zeros(1,numXbins);
-        thiscell.GSweights =  zeros(1,numXbins);
-        thiscell.ASlogrates = zeros(1,numAS);
-        thiscell.ASCVs =      zeros(1,numAS);
-        thiscell.ASweights  = zeros(numXbins,numAS);
-        thiscell.ASweights(cc,:) = 1;
-        Aeq_ASonly(cc,:) = convertGSASparms(thiscell);
-        thiscell.GSweights(cc) = 1;
-        Aeq(cc,:) = convertGSASparms(thiscell);
-    end
-    Aeq_ASonly(Aeq_ASonly~=1)=0;
-    Aeq(Aeq~=1)=0;
-
-    options = optimoptions('fmincon','Algorithm','sqp' ,'UseParallel',false,'Display','none');%
-    %try also: 'Algorithm','interior-point''active-set'
-    %Decrease tolerance.....
-    options.MaxFunctionEvaluations = 1e8;
-    options.MaxIterations = 1000; 
-
-    %% Fit all the distributions together
-    AScost_lambda = 0;
-    AScost_p = 1/2;
-    MScost = 3;
-    sub1msbins = ConditionalISI.Dist.Ybins<=-2.7;
-
-    costfun = @(GSASparm_vect) sum(sum((logISIhist-GSASmodel(GSASparm_vect,taubins,numXbins,numAS)).^2)) ...
-        + AScost_lambda.*sum((abs(Aeq_ASonly*GSASparm_vect)).^(AScost_p))...; %L1/2 norm on AS weights to promote sparseness
-        + MScost.*sum(sum((logISIhist(sub1msbins,:)-GSASmodel(GSASparm_vect,taubins(sub1msbins),numXbins,numAS)).^2)); 
-
-    fitparms = fmincon(costfun,init,[],[],Aeq,Beq,lb,ub,[],options);
-    ConditionalISI.GammaModes = convertGSASparms(fitparms,numXbins,numAS);
+    %Should be gotten from original fit parms...
+    MScost = 2;
+    MSthresh = 0.002;
+    AScost_p = 1;
+    AScost_lambda = 0.3;
+    ConditionalISI.GammaModes = FitSharedGamma(logISIhist,taubins,...
+    'MScost',MScost,'MSthresh',MSthresh,'AScost_p',AScost_p,'AScost_lambda',AScost_lambda,...
+    'init_struct',init_struct,'display_results','none',...
+    'UseParallel',false,'holdAS',holdAS); 
+    %%
+% 
+% 
+%     %Upper/Lower Bounds
+%     clear lb ub
+%     lb.GSlogrates = -2.*ones(1,numXbins);
+%     lb.GSCVs =      zeros(1,numXbins);
+%     lb.GSweights =  zeros(1,numXbins);
+%     lb.ASlogrates = 0.3.*ones(1,numAS);
+%     lb.ASCVs =      zeros(1,numAS);
+%     lb.ASweights  = zeros(numXbins,numAS);
+%     lb = convertGSASparms(lb);
+% 
+%     ub.GSlogrates = 2.*ones(1,numXbins);
+%     ub.GSCVs =      4.*ones(1,numXbins);
+%     ub.GSweights =  ones(1,numXbins);
+%     ub.ASlogrates = 3.*ones(1,numAS);
+%     ub.ASCVs =      2.*ones(1,numAS);
+%     ub.ASweights  = ones(numXbins,numAS);
+%     ub = convertGSASparms(ub);
+% 
+%     %Make the constraint matrix for all weights to add to 1
+%     Aeq = zeros(numXbins,length(ub));
+%     Aeq_ASonly = zeros(numXbins,length(ub));
+%     Beq = ones(numXbins,1);
+%     for cc = 1:numXbins
+%         thiscell.GSlogrates = zeros(1,numXbins);
+%         thiscell.GSCVs =      zeros(1,numXbins);
+%         thiscell.GSweights =  zeros(1,numXbins);
+%         thiscell.ASlogrates = zeros(1,numAS);
+%         thiscell.ASCVs =      zeros(1,numAS);
+%         thiscell.ASweights  = zeros(numXbins,numAS);
+%         thiscell.ASweights(cc,:) = 1;
+%         Aeq_ASonly(cc,:) = convertGSASparms(thiscell);
+%         thiscell.GSweights(cc) = 1;
+%         Aeq(cc,:) = convertGSASparms(thiscell);
+%     end
+%     Aeq_ASonly(Aeq_ASonly~=1)=0;
+%     Aeq(Aeq~=1)=0;
+% 
+%     options = optimoptions('fmincon','Algorithm','sqp' ,'UseParallel',false,'Display','none');%
+%     %try also: 'Algorithm','interior-point''active-set'
+%     %Decrease tolerance.....
+%     options.MaxFunctionEvaluations = 1e8;
+%     options.MaxIterations = 1000; 
+% 
+%     %% Fit all the distributions together
+%     AScost_lambda = 0;
+%     AScost_p = 1/2;
+%     MScost = 3;
+%     sub1msbins = ConditionalISI.Dist.Ybins<=-2.7;
+% 
+%     costfun = @(GSASparm_vect) sum(sum((logISIhist-GSASmodel(GSASparm_vect,taubins,numXbins,numAS)).^2)) ...
+%         + AScost_lambda.*sum((abs(Aeq_ASonly*GSASparm_vect)).^(AScost_p))...; %L1/2 norm on AS weights to promote sparseness
+%         + MScost.*sum(sum((logISIhist(sub1msbins,:)-GSASmodel(GSASparm_vect,taubins(sub1msbins),numXbins,numAS)).^2)); 
+% 
+%     fitparms = fmincon(costfun,init,[],[],Aeq,Beq,lb,ub,[],options);
+%    ConditionalISI.GammaModes = fitparms;%convertGSASparms(fitparms,numXbins,numAS);
 
     %% Mode Correlations
     [ConditionalISI.GammaModes.GSCorr,ConditionalISI.GammaModes.GScorr_p] = corr(ConditionalISI.Dist.Xbins',ConditionalISI.GammaModes.GSweights','type','Pearson');
